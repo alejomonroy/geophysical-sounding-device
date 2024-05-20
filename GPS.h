@@ -115,6 +115,15 @@ void GPS_NEO::set_reloj()	// DS3231 -> RP2040
 	byte year, month, date, DoW, hour, minute, second;
 	Clock.getTime(year, month, date, DoW, hour, minute, second);
 	
+  //{
+    year=0;
+    month=0;
+    date=0;
+    hour=0;
+    minute=0;
+    second=0;
+  //}
+
 	char buff[60];
 	sprintf(buff, "%02d/%02d/%02d %02d:%02d:%02d", month, date, year, hour, minute, second);
 	Serial.println(buff);

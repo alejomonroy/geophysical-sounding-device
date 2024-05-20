@@ -26,6 +26,52 @@ typedef struct		// 4 * 6= 24
 Adq		adq;
 
 // ----------------------------------------------------------------------------------------------------
+// Variables Globales para el Filtro IIR Notch
+const float notchFreq = 60.0;
+const float sampleRate = 1000.0;
+const float Q = 35.0;  // Factor de Calidad del filtro, ajusta el ancho de banda del notch
+
+// Coeficientes del Filtro
+float b0, b1, b2, a1, a2;
+
+// Buffers de Entrada y Salida (Historial)
+float _x0, _x1 = 0, _x2 = 0;
+float _y0, _y1 = 0, _y2 = 0;
+
+void calculateNotchFilterCoefficients() {
+	float R = 1 - (3 * (1/Q));
+	float K = (1 - (2*R*cos(2*M_PI*notchFreq/sampleRate)) + R*R) / (2 - (2*cos(2*M_PI*notchFreq/sampleRate)));
+	
+	/*a1 = 2*K;
+	a2 = -(1 - K);
+	b0 = 1;
+	b1 = -2*cos(2*M_PI*notchFreq/sampleRate);
+	b2 = 1;*/
+
+	a1 = -1.8498;
+	a2 = 0.9895;
+	b0 = 0.9948;
+	b1 = -1.8498;
+	b2 = 0.9948;
+}
+
+float applyNotchFilter(float input) {
+	// Actualizar el buffer de entrada
+	_x0 = input;
+
+	// Aplicar el filtro
+	_y0 = b0*_x0 + b1*_x1 + b2*_x2 - a1*_y1 - a2*_y2;
+
+	// Actualizar los buffers para la próxima iteración
+	_x2 = _x1;
+	_x1 = _x0;
+	_y2 = _y1;
+	_y1 = _y0;
+
+	// Devolver el valor filtrado
+	return _y0;
+}
+
 // ----------------------------------------------------------------------------------------------------
 class ADS1252
 {
@@ -85,8 +131,8 @@ void ADS1252::setADS1(pin_size_t sclk, pin_size_t miso)
 void ADS1252::setGanancia(int ganancia)
 {
 //	if((ganancia<0)||(ganancia>3)) return;
-  Serial.print("Ganancia: ");  Serial.println(ganancia);
- 
+	Serial.print("Ganancia: ");  Serial.println(ganancia);
+	
 	mcp0.writeGPIO(ganancia);
 	switch(ganancia)
 	{
@@ -135,7 +181,7 @@ byte ADS1252::available()
 		unsigned int tDRDY = (36+2) * 1000000/_CLK;     // en microsegundos.
 		delayMicroseconds(tDRDY);
 		
-		Vmn[ApVmn] = (2500*((float)read_data(0))/0x800000)/_ganancia;
+		Vmn[ApVmn] = applyNotchFilter((2500*((float)read_data(0))/0x800000)/_ganancia);
 		Serial.print(Vmn[ApVmn++]);		Serial.print(", ");
 		if(ApVmn>=tamArray) ApVmn = 0;
 		
@@ -160,6 +206,16 @@ byte ADS1252::available()
 
 void ADS1252::reset_adc()
 {
+	calculateNotchFilterCoefficients();
+	Serial.print("Coeficientes del filtro: ");
+	Serial.print("b0=");	Serial.print(b0);
+	Serial.print(", b1=");	Serial.print(b1);
+	Serial.print(", b2=");	Serial.print(b2);
+	Serial.print(", a1=");	Serial.print(a1);
+	Serial.print(", a2=");	Serial.println(a2);
+	_x1 = 0, _x2 = 0;
+	_y1 = 0, _y2 = 0;
+	
 	ApVmn=0;
 	ApIAB=0;
 	

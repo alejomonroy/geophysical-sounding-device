@@ -59,7 +59,7 @@ void LeerMuestras(char *strComponente, long num_muestras, float &volts, float &c
 	current =0;
 	for(i= 15; i<num_muestras; i++)
 	{
-		volts += Vmn[from + i];
+		volts += (Vmn[from + i]);
 		current += IAB[from + i];
 	}
 	
@@ -85,6 +85,7 @@ void Adquirir(byte *progress_Bar)
 	int i;
 	// -------------------------
 	LeerMuestras("SP1", config.t_OFF, SP1, I0);				// Leer 1000 muestras en tiempo de SP1
+	//adq.SP1 = 1.025*SP1 - 2.3;
 	adq.SP1 = SP1;
 	*progress_Bar=1;
 	
@@ -93,6 +94,7 @@ void Adquirir(byte *progress_Bar)
 	__fuenteAB.ON();
 	LeerMuestras("V1", config.t_ON, V1, I1);
 	I1 = I1 - I0;
+	//adq.V1 = 1.0193 * V1;
 	adq.V1 = V1;
 	adq.I1 = I1;
 	*progress_Bar=2;
@@ -103,6 +105,7 @@ void Adquirir(byte *progress_Bar)
 	
 	__fuenteAB.NEG();
 	LeerMuestras("SP2", config.t_OFF/2, SP2, I0);			// SP
+	//adq.SP2 = 1.025*SP2 - 2.3;
 	adq.SP2 = SP2;
 	*progress_Bar=3;
 	
@@ -110,6 +113,7 @@ void Adquirir(byte *progress_Bar)
 	__fuenteAB.ON();
 	LeerMuestras("V2", config.t_ON, V2, I2);
 	I2 = I2 - I0;
+	//adq.V2 = 1.0193 * V2;
 	adq.V2 = V2;
 	adq.I2 = I2;
 	dV1 = V1-SP1;

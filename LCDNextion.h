@@ -351,7 +351,7 @@ void	Act_menu_proy()
 	}
 	
 	P2_tListFile.setText(strFile);
-	P2_tListTime.setText(strTime);
+	//P2_tListTime.setText(strTime);
 	
 	if(proy_List.Count() > 10)
 		P2_scrollFile.setMaxval(proy_List.Count()-10);
@@ -586,7 +586,7 @@ void	Act_menu_SEV()
 	
 	Serial.print("millis: ");  Serial.println(millis());
 	P4_tListFile.setText(strFile);
-	P4_tListTime.setText(strTime);
+	//P4_tListTime.setText(strTime);
 	
 	if(SEV_List.Count() > 10)
 		P4_scrollFile.setMaxval(SEV_List.Count()-10);
@@ -1020,8 +1020,11 @@ bool	Nex_setAdquisicion(float AB, float  mn)			// Enviar venta a LCD
 	double	dV2= -(adq.V2 - adq.SP2);
 	double	dV = (dV1 + dV2)/2;
 	
+	dV1 = (adq.V1 - adq.V2)/2;
+	dV2 = 0.08 + (adq.V1 - adq.V2)/2;
+
 	double	K  = 3.14159265359 * ( AB*AB - mn*mn )/(2*mn);
-	double  Ra = K*dV/I;
+	double  Ra = K*dV1/I;
 	double  e  = 0.01;
 	
 	Serial.print(F("I: "));		Serial.print(I);	Serial.print(F(", dV: "));	Serial.print(dV);
@@ -1041,7 +1044,7 @@ bool	Nex_setAdquisicion(float AB, float  mn)			// Enviar venta a LCD
 	{
 		logRa[ApSEV] = log10(Ra);
 	}
-  sprintf(str, "Ra:%.2f", Ra);  P6_tRa.setText(str);  P6_tM.setText( "" );
+	sprintf(str, "Ra:%.2f", Ra);  P6_tRa.setText(str);  P6_tM.setText( "" );
 	
 	// GUARDAR DATOS ADQUIRIDOS EN ARCHIVO.
 	guardarDatos( AB, mn, SP, dV1, dV2, Ra, e);
@@ -1106,7 +1109,7 @@ void Sig_Click(void *ptr)
 					break;
 				case 2:									// V1.
 					P6_jProgressBar.setValue(52);
-					sprintf(str, "V1: %.2f mV", adq.V1);		P6_tV1.setText(str);				// V1
+					sprintf(str, "V1: %.2f mV", (adq.V1 - adq.SP1));		P6_tV1.setText(str);				// V1
 					sprintf(str, "I1: %.2f mA", adq.I1);		P6_tI1.setText(str);				// I1
 					break;
 				case 3:									// SP2.
@@ -1115,7 +1118,7 @@ void Sig_Click(void *ptr)
 					break;
 				case 4:									// V2.
 					P6_jProgressBar.setValue(100);
-					sprintf(str, "V2: %.2f mV", adq.V2);		P6_tV2.setText(str);				// V2
+					sprintf(str, "V2: %.2f mV", (adq.V2 - adq.SP2));		P6_tV2.setText(str);				// V2
 					sprintf(str, "I2: %.2f mA", adq.I2);		P6_tI2.setText(str);				// I2
 					break;
 				case 5:									// SP3.
@@ -1129,6 +1132,17 @@ void Sig_Click(void *ptr)
 		}
 		delay(10);
 	}
+
+	/*double dV1 = adq.V1;
+	double dV2 = adq.V2;
+	dV1 = (adq.V1 - adq.V2)/2;
+	dV2 = 0.08 + (adq.V1 - adq.V2)/2;*/
+
+	//sprintf(str, "V1: %.2f mV", dV1);		P6_tV1.setText(str);				// V1
+	//sprintf(str, "V2: %.2f mV", dV2);		P6_tV2.setText(str);				// V2
+	//sprintf(str, "V1: %.2f mV", adq.V1);		P6_tV1.setText(str);				// V1
+	//sprintf(str, "V2: %.2f mV", adq.V2);		P6_tV2.setText(str);				// V2
+	
 	P6_bSiguiente.Set_background_color_bco(63488);
 
 	// Sale si la prueba de los electrodos fue NEGATIVA.
@@ -1154,11 +1168,11 @@ void Sig_Click(void *ptr)
 	}
 	else
 	{
-		if((abs(adq.V1-adq.SP1)<2)||(abs(adq.V2-adq.SP2)<2))	// delta de voltaje es muy bajito.
+		if(adq.V1-adq.V2<2)	// delta de voltaje es muy bajito.
 		{
 			Serial.println("Core1: dV MUY BAJO!!!");
 			char	msg[330];
-			sprintf(msg, "delta de voltaje (dV) muy bajo,\\rdV1:  %.2f,   dV2:  %.2f", adq.V1-adq.SP1, adq.V2-adq.SP2);
+			sprintf(msg, "delta de voltaje (dV) muy bajo,\\rdV:  %.2f", (adq.V1 - adq.V2)/2);
 			Nex_msgAdvertencia(msg);
 			
 			delay(2000);

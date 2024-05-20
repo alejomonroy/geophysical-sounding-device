@@ -366,7 +366,10 @@ void listSEVs(boolean debug)
 		if(file.isFile())
 		{
 			// adicionar elemento al arreglo. filtrando por extencion.
-			if(strstr(file.name(), ".json")) continue;	// salta archivos .json
+			if(strstr(file.name(), ".json"))
+			{
+				continue;	// salta archivos .json
+			}
 			
 			FileItem sondeo;
 			

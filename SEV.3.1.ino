@@ -51,9 +51,9 @@ void setup1()
 {
 	delay(2000);
 	while(finSetup1 == false)
-  {
-    delay(10);
-  }
+	{
+		delay(10);
+	}
 	
 	long tSetup = millis();
 	
@@ -64,10 +64,10 @@ void setup1()
 	ads1252.setADS0(ADS0_SCK, ADS0_MISO);
 	ads1252.setADS1(ADS1_SCK, ADS1_MISO);
 	ads1252.begin(1000);
-	testElectrodos.init_PE();
+//	testElectrodos.init_PE();
 	
-	niveles.begin();		// inicializa ADS1115*/
-  __fuenteAB.begin(AB_POWER, AB_POL, AB_ENABLE);
+	niveles.begin();		// inicializa ADS1115
+	__fuenteAB.begin(AB_POWER, AB_POL, AB_ENABLE);
 	
 	// inicializa control fuente HV.
 	// Maquina de estados.
@@ -75,10 +75,10 @@ void setup1()
 	niveles.tOut = millis() + 2000;
 	gps_neo.tOut = millis() + 1000;
 	pinMode(LED_BUILTIN, OUTPUT);
-	
+//	*/
 	Serial.print("Fin Setup CORE 2 - ");	Serial.println(millis()-tSetup);
 	
-/*		Serial.println("INICIA ADQUISICION DE DATOS...");
+		/*Serial.println("INICIA ADQUISICION DE DATOS...");
 		digitalWrite(LED_BUILTIN, HIGH);
 		ads1252.reset_adc();
 		for(int i=0; i<5; i++)
@@ -88,7 +88,7 @@ void setup1()
 			Adquirir(&ProgressBar);
 			//LeerMuestras("prueba", 1000, V, I);
 		}
-		ads1252.stop(); */
+		ads1252.stop();*/
 		
 }
 
@@ -124,32 +124,32 @@ void loop1()
 			Serial.println("INICIA ADQUISICION DE DATOS...");
 			digitalWrite(LED_BUILTIN, HIGH);
 			
-			__fuenteAB.ON();
-			int ret = NEX_Test_Electrodes();
-			__fuenteAB.OFF();
+			//__fuenteAB.ON();
+			//int ret = NEX_Test_Electrodes();
+			//__fuenteAB.OFF();
 			
-			delay(50);
+			//delay(50);
 			Nex_page(PGRAFICA);
 			delay(600);
 			actualizar_Ra();
 
-      if(ret == 1)
-      {
-        Adquirir(&ProgressBar);
-        Serial.println("TEST ELECTRODOS OK...");
-      }else
-      {
-        ProgressBar=6;
-        Serial.println("TEST ELECTRODOS ERROR!!!...");
-      }
+			//if(ret == 1)
+			//{
+				Adquirir(&ProgressBar);
+			//	Serial.println("TEST ELECTRODOS OK...");
+			//}else
+			//{
+			//	ProgressBar=6;
+			//	Serial.println("TEST ELECTRODOS ERROR!!!...");
+			//}
 		}
 	}
 	
 	// --------------------------------------------------
 	if(millis() > gps_neo.tOut)		// cada segundo.
 	{
-//    int n = Serial.availableForWrite();
-//    Serial.print("n: ");    Serial.println(n);
+		int n = Serial.availableForWrite();
+		Serial.print("n: ");    Serial.println(n);
 		gps_neo.tOut = millis() + 1000;
 		
 		if(NEXTION_PAGE != PABRIR_SEV) gps_neo.verHora();
