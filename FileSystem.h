@@ -354,7 +354,6 @@ void listSEVs(boolean debug)
 	
 	char	strfile[50];
 	sprintf(strfile, "/%s/", Proyecto.nombre);
-	
 	Serial.printf("millis: %d\n", millis());
 	
 	Dir root = FileSystem.openDir(strfile);
@@ -368,6 +367,7 @@ void listSEVs(boolean debug)
 			// adicionar elemento al arreglo. filtrando por extencion.
 			if(strstr(file.name(), ".json"))
 			{
+				Serial.print("JSON: ");		Serial.println((char *)file.name());
 				continue;	// salta archivos .json
 			}
 			
@@ -404,41 +404,41 @@ int abrirSEV(char *NombreSEV)
 	
 	File file = FileSystem.open(strfile,"r");
 	
-	if (!file)
+	if (file)
+	{
+		if(file.available())
+		{
+			int n;
+			StaticJsonDocument<500> doc;
+			char strbuff[500];
+			
+			n=file.read((uint8_t *)strbuff, 500);
+			
+			Serial.print("leidos: ");   Serial.println(n);
+			Serial.print("@ABRESev>");
+			Serial.write(strbuff, n);	Serial.println();
+			
+			// Obtener elementos JSON validos.
+			doc.clear();
+			DeserializationError error = deserializeJson(doc, strbuff);
+			
+			strlcpy( sev.fecha,	doc["fecha"]|"2000:01:01",			sizeof(sev.fecha));
+			strlcpy( sev.hora,	doc["hora"]|"13:01",				sizeof(sev.hora));
+			strlcpy( sev.coord,	doc["coordenadas"]|"4.000000, -74.000000",sizeof(sev.coord));
+			strlcpy( sev.nombre,doc["nombre"]|"nombre SEV",			sizeof(sev.nombre));
+			sev.AB2			= doc["AB"];
+			
+			Serial.print("sev.fecha : ");		Serial.println(sev.fecha);
+			Serial.print("sev.hora  : ");		Serial.println(sev.hora);
+			Serial.print("sev.coord : ");		Serial.println(sev.coord);
+			Serial.print("sev.nombre: ");		Serial.println(sev.nombre);
+			Serial.print("sev.AB2   : ");		Serial.println(sev.AB2);
+		}
+		file.close();
+	}else
 	{
 		Serial.println("No es posible abrir HEADER del sondeo...");
-		return -1;
 	}
-	
-	if(file.available())
-	{
-		int n;
-		StaticJsonDocument<500> doc;
-		char strbuff[500];
-		
-		n=file.read((uint8_t *)strbuff, 500);
-		
-		Serial.print("leidos: ");   Serial.println(n);
-		Serial.print("@ABRESev>");
-		Serial.write(strbuff, n);	Serial.println();
-		
-		// Obtener elementos JSON validos.
-		doc.clear();
-		DeserializationError error = deserializeJson(doc, strbuff);
-		
-		strlcpy( sev.fecha,	doc["fecha"]|"2000:01:01",			sizeof(sev.fecha));
-		strlcpy( sev.hora,	doc["hora"]|"13:01",				sizeof(sev.hora));
-		strlcpy( sev.coord,	doc["coordenadas"]|"4.000000, -74.000000",sizeof(sev.coord));
-		strlcpy( sev.nombre,doc["nombre"]|"nombre SEV",			sizeof(sev.nombre));
-		sev.AB2			= doc["AB"];
-		
-		Serial.print("sev.fecha : ");		Serial.println(sev.fecha);
-		Serial.print("sev.hora  : ");		Serial.println(sev.hora);
-		Serial.print("sev.coord : ");		Serial.println(sev.coord);
-		Serial.print("sev.nombre: ");		Serial.println(sev.nombre);
-		Serial.print("sev.AB2   : ");		Serial.println(sev.AB2);
-	}
-	file.close();
 	
 	// --------------- Abrir matriz de datos. ---------------
 	sprintf(strfile, "/%s/%s.txt", Proyecto.nombre, NombreSEV);	// archivo JSON del sondeo.
