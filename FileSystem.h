@@ -57,12 +57,13 @@ List<FileItem> SEV_List;
 int	fileFirstName(char *strOut, char *strIn)
 {
 	int i;
-	for(i=0; i< strlen(strIn); i++) if(strIn[i]=='.') break;
-	for(int j=0; j<i; j++) strOut[j] = strIn[j];
+	int last=-1;
+
+	for(i=0; i< strlen(strIn); i++) if(strIn[i]=='.') last = i;
+	strncpy(strOut, strIn, last);
+	strOut[last]=0;
 	
-	strOut[i]=0;
-	
-	return i;
+	return last;
 }
 
 // -------------------------
@@ -445,7 +446,7 @@ int abrirSEV(char *NombreSEV)
 	Serial.print("Abrir matriz de datos del sondeo: "); Serial.println(strfile);
 	file = FileSystem.open(strfile,"r");
 	
-	if (!file)
+	if(!file)
 	{
 		Serial.println("No es posible abrir matriz de datos del sondeo...");
 		return -2;
