@@ -1,220 +1,159 @@
 
-# Equipo de Sondeos Eléctricos Verticales (SEV) 3.0
+# Geophysical Sounding Device
 
-Este repositorio contiene el código fuente y las especificaciones técnicas del **Equipo de Sondeos Eléctricos Verticales (SEV) 3.0**, desarrollado para aplicaciones geofísicas. Este equipo está diseñado para realizar mediciones de resistividad eléctrica del suelo con alta precisión y facilidad de uso, integrando hardware y firmware avanzados.
-
----
-
-## **Características principales**
-
-### **Hardware**
-
-1. **Microcontrolador principal**:
-   - Raspberry Pi Pico (RP2040).
-
-2. **Conversores analógico-digital**:
-   - 2 x ADS1252 para medidas principales de voltaje y corriente.
-   - 2 x ADS1115:
-     - Uno conectado a un amplificador OPA4241 para medir voltajes de alimentación y estado de baterías.
-     - Otro para verificar la conexión de electrodos mediante baja corriente inducida.
-
-3. **Entradas y sensores**:
-   - Amplificador INA114 para entradas diferenciales.
-   - Medidor de corriente ACS-5A.
-
-4. **Pantalla táctil**:
-   - Pantalla Nextion de 7 pulgadas para interacción con el usuario y visualización de datos.
-
-5. **Sensores de alimentación**:
-   - Voltajes monitoreados:
-     - Batería principal (12V).
-     - Batería del RTC DS3231 (3.6V, 1/2 AA).
-     - Lógica de 5V y 3.3V.
-
-### **Software**
-
-1. **Adquisición y procesamiento de datos**:
-   - Uso de filtros IIR para reducción de ruido.
-   - Control dinámico de ganancia en los conversores ADS1252.
-   - Cálculo de resistividad aparente en tiempo real.
-
-2. **Interfaz de usuario**:
-   - Implementación de menús interactivos en la pantalla Nextion.
-   - Gráficas dinámicas de las mediciones adquiridas.
-
-3. **Verificación de electrodos**:
-   - Circuito dedicado para verificar la conexión al suelo mediante baja corriente.
-   - Indicadores visuales y mensajes en pantalla para diagnóstico.
-
-4. **Sincronización y almacenamiento**:
-   - Sincronización de tiempo con el módulo RTC DS3231.
-   - Almacenamiento de proyectos y datos de sondeos en formato JSON y CSV en memoria interna.
+This repository contains the firmware and technical documentation for a complete embedded system designed to perform **Vertical Electrical Soundings (VES)** and **Electrical Resistivity Tomography (ERT)**. The system integrates a data acquisition core, power control electronics, electrode verification, GPS, and a touch-enabled Human-Machine Interface (HMI).
 
 ---
 
-## **Estructura del Proyecto**
+## 🧭 Project Overview
 
-### **Directorios y Archivos principales**
+This device was developed with the goal of providing a reliable, high-precision solution for field geophysical studies. It enables geoscientists, hydrogeologists, and environmental engineers to acquire subsurface resistivity data in a streamlined and automated manner.
 
-- **`SEV.3.1.ino`**: Archivo principal del firmware.
-- **`Adquisicion.h`**: Control de adquisición de datos de voltaje y corriente.
-- **`ADS1252.h`**: Implementación del control para los conversores ADS1252.
-- **`TestElectro.h`**: Verificación del estado de los electrodos.
-- **`LCDNextion.h`**: Gestión de la interfaz gráfica en la pantalla Nextion.
-- **`nivelFuentes.h`**: Medición de niveles de voltaje en las fuentes de alimentación.
-- **`FileSystem.h`**: Organización de proyectos y datos en memoria interna.
-- **`GPS.h`**: Gestión del módulo GPS y sincronización con el RTC.
+It includes features that ensure:
+- Operator safety during high-voltage operation.
+- Automatic validation of electrode-ground connectivity.
+- Real-time visualization and structured data storage.
+- Embedded control of current injection and signal acquisition.
 
 ---
 
-## **Requisitos del Sistema**
+## ⚙️ Main Features
 
-### **Hardware**
+### 🧠 Embedded System
 
-1. Raspberry Pi Pico (RP2040).
-2. Conversores ADS1252 y ADS1115.
-3. Amplificador INA114 y OPA4241.
-4. Módulo RTC DS3231.
-5. Pantalla táctil Nextion de 7 pulgadas.
-6. Medidor de corriente ACS-5A.
+- **Dual-core microcontroller with ARM Cortex-M0+ architecture**, ideal for parallel tasks such as data acquisition and HMI interaction.
+- **Sampling rate: 1000 samples/second**, processed by:
+  - **Notch filter (60 Hz)** to eliminate power-line interference.
+  - **Low-pass digital filter** for signal conditioning.
+  - **Linear regression** to calculate spontaneous potential (SP) and its slope for compensation.
 
-### **Software**
+### 📈 Signal Acquisition and Processing
 
-1. **Arduino IDE**: Versión 1.8.x o superior.
-2. Librerías necesarias:
-   - `Adafruit_MCP23X17`.
-   - `Adafruit_ADS1X15`.
-   - `ArduinoJson`.
-   - `TinyGPS`.
-   - `Nextion`.
-   - `LittleFS`.
-   - `CSV_Parser`.
+- **Analog front-end components**:
+  - **ADS1252 (24-bit ADC)** for voltage and current measurements from the subsurface.
+  - **ADS1115 (16-bit ADC)** for system voltage monitoring and electrode check.
+  - **INA114** for precise differential signal amplification.
+  - **ACS-5A** current sensor for injected current measurement.
 
----
+- **Automatic gain selection** based on signal levels to optimize resolution.
 
-## **Cómo usar este código**
+### ⚡ Power Injection Control
 
-1. **Configurar el entorno**:
-   - Instalar las librerías mencionadas en el Arduino IDE.
-   - Conectar los componentes de hardware según el diseño del circuito.
+- High-voltage power supply controlled via **UART at 9600 bps**.
+- The system sends commands to configure maximum output voltage and current.
+- **H-bridge with electromechanical relays** to alternate polarity and control ON/OFF state.
+- Working cycle: `OFF – HV – OFF – HV – OFF` (1 second per stage).
 
-2. **Cargar el firmware**:
-   - Abrir el archivo `SEV.3.1.ino` en el Arduino IDE.
-   - Seleccionar la placa `Raspberry Pi Pico` y el puerto correspondiente.
-   - Compilar y cargar el firmware en el microcontrolador.
+### 🧪 Electrode Test
 
-3. **Interacción**:
-   - Usar la pantalla táctil para gestionar proyectos y visualizar datos.
-   - Realizar pruebas de electrodos y sondeos mediante las opciones disponibles en la interfaz.
+- Safe, low-current test is executed **before** each sounding to ensure electrodes are properly connected to the ground.
+- Faulty connections are detected automatically and visual feedback is provided on the HMI.
+- The test system uses a secondary **ADS1115** and relay-controlled paths to validate all four electrodes (A, B, M, N).
 
----
+### 🖥️ Human-Machine Interface
 
-## **Contribuciones**
+- **Nextion 7” touchscreen display** is used for all user interactions.
+- Menus for:
+  - Creating/selecting projects and soundings.
+  - Viewing voltage trends and temperatures.
+  - Monitoring internal voltages: 12V battery, 5V, 3.3V, and 3.6V RTC.
+  - Graphing apparent resistivity in real time.
 
-Este proyecto está en constante desarrollo. Si tienes sugerencias, encuentras errores o quieres contribuir, por favor abre un issue o envía un pull request.
+### 🛰️ GPS and Time Sync
 
----
-
-## **Licencia**
-
-Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+- Integrated **GPS + DS3231 RTC** for geolocation and timestamping of soundings.
+- System syncs both microcontroller and RTC clock on startup using GPS time.
 
 ---
 
-## **Contacto**
+## 📁 Repository Structure
 
-- **Desarrollador**: Luis Alejandro Monroy  
-- **LinkedIn**: [Alejandro Monroy](https://www.linkedin.com/in/alejandro-monroy-dev)  
-- **Correo**: alejo_un@hotmail.com
+```bash
+geophysical-sounding-device/
+├── firmware/
+│   ├── Adquisicion.h         # Acquisition logic and measurement routines
+│   ├── ADS1252.h             # ADC interface and signal filtering
+│   ├── Consola.h             # Serial communication and command handling
+│   ├── FileSystem.h          # Project and sounding file management (LittleFS)
+│   ├── filtro.h              # Regression and digital filters
+│   ├── FuenteAB.h            # High voltage source control via UART
+│   ├── GPS.h                 # GPS reading and RTC sync
+│   ├── LCDNextion.h          # HMI Nextion screen manager
+│   ├── nivelFuentes.h        # Power supply voltage monitoring
+│   ├── SEV.3.0.h             # Main initialization routines
+│   ├── SEV.3.1.ino           # Main firmware file
+│   ├── TestElectro.h         # Electrode test logic
+├── docs/
+│   └── blog.md               # Technical blog post (in Spanish)
+└── README.md                 # This file
+```
 
+---
 
-# Proyecto SEV 3.1
+## 🚀 System Workflow
 
-Este proyecto es un sistema para la adquisición, análisis y visualización de datos obtenidos mediante sondeos eléctricos verticales (SEV). Utiliza hardware embebido, sensores y pantallas para implementar un flujo de trabajo eficiente que incluye la configuración de proyectos, la adquisición de datos y el análisis visual.
+1. **Startup**
+   - Initializes ADCs, touchscreen, filesystem, RTC, and GPS.
+   - Scans I2C bus and verifies sensor presence.
 
-## Tabla de Contenidos
-- [Componentes del Proyecto](#componentes-del-proyecto)
-- [Características Principales](#características-principales)
-- [Configuración de Hardware](#configuración-de-hardware)
-- [Estructura del Código](#estructura-del-código)
-- [Instrucciones de Uso](#instrucciones-de-uso)
-- [Créditos](#créditos)
+2. **Electrode Check**
+   - Injects a low current using controlled relay paths.
+   - Measures resistance of electrodes A, B, M, N.
+   - Displays connection status and alerts if any contact is poor.
 
-## Componentes del Proyecto
-El sistema está compuesto por:
+3. **Sounding Execution**
+   - Alternates polarities and injection stages (OFF–HV–OFF–HV–OFF).
+   - Samples data at 1000 Hz during each measurement stage.
+   - Applies regression and filtering to determine SP and voltage deltas.
 
-- **Sensores:** ADS1252, ADS1115.
-- **Hardware de Control:**
-  - Controladores I2C (Adafruit_MCP23X17).
-  - RTC DS3231 para sincronización de tiempo.
-- **Plataforma de visualización:** Pantalla Nextion para la interfaz gráfica.
-- **Microcontrolador:** Microcontrolador RP2040 configurado para la adquisición y procesamiento de datos.
-- **Entradas y salidas analógicas:** Configuradas para manejar diferentes rangos de señal.
+4. **Calculation of Apparent Resistivity**
+   - Uses collected voltage and current data to compute Ra.
+   - Displays result on graph and saves it to internal memory.
 
-## Características Principales
+5. **Repeat or End**
+   - Operator can repeat the measurement or proceed to the next aperture.
 
-1. **Adquisición de Datos**: Utiliza un ADC ADS1252 para obtener datos precisos en tiempo real.
-2. **Gestión de Proyectos y SEVs**:
-   - Creación, apertura y eliminación de proyectos.
-   - Administración de datos específicos de SEVs (Sondeos Eléctricos Verticales).
-3. **Visualización Interactiva**:
-   - Gráficos en tiempo real para los datos adquiridos.
-   - Interacción mediante pantalla táctil Nextion.
-4. **Pruebas Automáticas**:
-   - Pruebas automáticas de electrodos para garantizar la precisión de las mediciones.
-5. **Sincronización Temporal**: Sincronización con el GPS y RTC para estampar fecha y hora.
+---
 
-## Configuración de Hardware
+## 📦 Requirements
 
-### Pines Importantes
-- **I2C**: SDA en pin 18, SCL en pin 19.
-- **ADC**: Configuración de ADS1252 y ADS1115 según la documentación del código.
-- **Controlador de Fuente**: Pines de control para polaridad, habilitación y corriente.
-- **Pantalla Nextion**: Conectada a los pines de comunicación serial.
+- Platform: Arduino + Raspberry Pi Pico
+- Libraries:
+  - `Adafruit_MCP23X17`
+  - `Adafruit_ADS1X15`
+  - `TinyGPS`
+  - `DS3231`
+  - `Nextion`
+  - `ArduinoJson`
+  - `CSV_Parser`
+  - `LittleFS`
 
-### Requisitos de Hardware
-- Alimentación adecuada para el microcontrolador y periféricos.
-- Una configuración estable de cableado para minimizar el ruido.
+---
 
-## Estructura del Código
+## ✅ Project Status
 
-### Archivos Principales
+- ✅ Hardware complete and field-tested.
+- ✅ Firmware stable and well structured.
+- 🟡 Documentation (user guide and PC software) under development.
+- 🟡 Automated data export functionality in progress.
 
-- **Adquisicion.h:** Gestión de la adquisición de datos y la lógica de ganancia.
-- **ADS1252.h:** Configuración y manejo del ADC principal.
-- **FileSystem.h:** Gestión de proyectos y SEVs en memoria flash.
-- **LCDNextion.h:** Manejo de la pantalla Nextion.
-- **GPS.h:** Sincronización y lectura de datos desde el GPS.
-- **TestElectro.h:** Pruebas automáticas de electrodos.
-- **SEV.3.1.ino:** Archivo principal del proyecto, integra todos los módulos.
+---
 
-### Principales Funciones
-- `Adquirir`: Realiza la adquisición de datos desde los sensores.
-- `proc_message`: Procesa comandos recibidos.
-- `abrirProy`: Abre un proyecto desde el sistema de archivos.
-- `abrirSEV`: Abre un SEV asociado a un proyecto.
-- `Nex_setAdquisicion`: Actualiza la pantalla con datos adquiridos.
+## 📜 License
 
-## Instrucciones de Uso
+This project is licensed under the **MIT License**. See `LICENSE` for details.
 
-### Paso 1: Configuración Inicial
-1. Asegúrate de que todo el hardware esté correctamente conectado.
-2. Configura los pines según las definiciones en los archivos de cabecera.
-3. Carga el archivo `SEV.3.1.ino` en tu microcontrolador usando el entorno de desarrollo Arduino.
+---
 
-### Paso 2: Gestión de Proyectos
-1. Usa la pantalla Nextion para crear o abrir un proyecto.
-2. Agrega nuevos SEVs o selecciona uno existente para trabajar.
+## 👨‍💻 Author
 
-### Paso 3: Adquisición de Datos
-1. Ejecuta las pruebas de electrodos para verificar la conexión adecuada.
-2. Inicia la adquisición de datos desde la pantalla táctil.
-3. Visualiza los datos en gráficos en tiempo real.
+Developed by **Luis Alejandro Monroy**
 
-### Paso 4: Almacenamiento y Análisis
-1. Guarda los datos automáticamente en la memoria flash.
-2. Revisa los datos adquiridos en gráficos detallados.
+- 📫 [alejo_un@hotmail.com](mailto:alejo_un@hotmail.com)
+- 🔗 [LinkedIn](https://www.linkedin.com/in/alejandro-monroy-dev)
+- 🌐 [Portfolio](https://www.alejandro-monroy.com)
+- 🧪 [GitHub](https://github.com/alejomonroy)
 
-## Créditos
-Este proyecto fue desarrollado por **Luis Alejandro Monroy**, ingeniero electrónico especializado en sistemas embebidos y desarrollo de hardware.
+---
 
+If you find this project useful or would like to contribute, feel free to fork, open issues or contact me. Field testing, robustness, and signal fidelity have been the main drivers of this design.

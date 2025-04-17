@@ -20,7 +20,7 @@ bool finSetup1 = false;
 void setup()
 {
 	Serial.begin(115200);
-	//while (!Serial);
+	while (!Serial);
 
 	long tSetup = millis();
 	
@@ -69,52 +69,15 @@ void setup1()
 	niveles.begin();		// inicializa ADS1115
 	__fuenteAB.begin(AB_POWER, AB_POL, AB_ENABLE);
 	
-	// inicializa control fuente HV.
-	// Maquina de estados.
-	
 	niveles.tOut = millis() + 2000;
 	gps_neo.tOut = millis() + 1000;
 	pinMode(LED_BUILTIN, OUTPUT);
-//	*/
-	Serial.print("Fin Setup CORE 2 - ");	Serial.println(millis()-tSetup);
-	
-		/*Serial.println("INICIA ADQUISICION DE DATOS...");
-		digitalWrite(LED_BUILTIN, HIGH);
-		ads1252.reset_adc();
-		for(int i=0; i<5; i++)
-		{
-			float V, I;
-			delay(4000);
-			Adquirir(&ProgressBar);
-			//LeerMuestras("prueba", 1000, V, I);
-		}
-		ads1252.stop();*/
-		
 }
 
 // ----------------------------------------------------------------------------------------------------
 void loop1()
 {
 	// get page in Nextion.
-	
-	/*switch(NEXTION_PAGE)	// estados o paginas e las que se encuentra el programa HMI.
-	{
-		case PTEMPER:
-		break;
-		/*case _PNUEVO_PROY:
-		break;
-		case _PNUEVO_SEV:
-		break;
-		case _PGRAFICA:		// adquirir.
-		break;
-		case _PCONF:
-		break;
-		case _PPRUEBA_ELEC:
-		break;
-		case _ADQUIRIR:
-		break;		//
-	}	//*/
-	
 	// --------------------------------------------------
 	if(NEXTION_PAGE == PGRAFICA)
 	{
@@ -124,24 +87,11 @@ void loop1()
 			Serial.println("INICIA ADQUISICION DE DATOS...");
 			digitalWrite(LED_BUILTIN, HIGH);
 			
-			//__fuenteAB.ON();
-			//int ret = NEX_Test_Electrodes();
-			//__fuenteAB.OFF();
-			
-			//delay(50);
 			Nex_page(PGRAFICA);
-			delay(600);
+			wait_for(600);
 			actualizar_Ra();
 
-			//if(ret == 1)
-			//{
-				Adquirir(&ProgressBar);
-			//	Serial.println("TEST ELECTRODOS OK...");
-			//}else
-			//{
-			//	ProgressBar=6;
-			//	Serial.println("TEST ELECTRODOS ERROR!!!...");
-			//}
+			Adquirir(&ProgressBar);
 		}
 	}
 	
