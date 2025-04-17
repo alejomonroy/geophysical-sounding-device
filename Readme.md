@@ -115,21 +115,6 @@ geophysical-sounding-device/
 
 ---
 
-## 📦 Requirements
-
-- Platform: Arduino + Raspberry Pi Pico
-- Libraries:
-  - `Adafruit_MCP23X17`
-  - `Adafruit_ADS1X15`
-  - `TinyGPS`
-  - `DS3231`
-  - `Nextion`
-  - `ArduinoJson`
-  - `CSV_Parser`
-  - `LittleFS`
-
----
-
 ## ✅ Project Status
 
 - ✅ Hardware complete and field-tested.

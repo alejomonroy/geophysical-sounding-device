@@ -1,28 +1,3 @@
-/*
-	4*3*TRM
-
-
-	{entity:"Set", Vout:150, Iout:10}
-	{entity:"power_ON"}
-	{entity:"power_OFF"}
-	
-	150 mA
-	242 mA
-	313 mA
-	
-	
-	2788
-	6565
-	3248
-	
-	o Huecos frontales y tornillos negros bristol.
-	o Hueco para interruptor.
-	
-	o Carretes con cables.
-	o El arreglo se cargue desde un archivo.
-	o Programa en python para descarga de datos.
-*/
-
 #ifndef __fuenteAB__
 #define __fuenteAB__
 

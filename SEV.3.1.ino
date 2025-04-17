@@ -16,7 +16,6 @@ CONFIGURACION config;
 *****************************************************************************/
 bool finSetup1 = false;
 
-// control NEXTION y BT (APP android o ios) + FileSystem.
 void setup()
 {
 	Serial.begin(115200);
@@ -28,9 +27,7 @@ void setup()
 	nextion_begin();
 	init_FileSystem();
 	
-	// inicializa BT.
 	// controla comunicacion serial. recibir comandos por puerto serial.
-	
 	void *ptr;
 	Pag_Temperturas(ptr);
 	Serial.print("Fin Setup CORE 1 - ");	Serial.println(millis()-tSetup);

@@ -115,12 +115,3 @@ void	proc_GPS()
 	else                            digitalWrite(LED_BUILTIN, HIGH);
 }
 
-
-
-// Arreglo con nombres de proyectos.
-
-// Datos proyecto abierto.
-
-// Arreglo con nombres de SEVs.
-
-// Datos de SEV abierto.
